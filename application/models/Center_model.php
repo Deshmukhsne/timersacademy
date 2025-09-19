@@ -393,10 +393,4 @@ class Center_model extends CI_Model
         $row = $this->db->select('center_id')->where('id', $admin_id)->get('admins')->row();
         return $row ? $row->center_id : null;
     }
-<<<<<<< HEAD
-
-
-
-=======
->>>>>>> 24f249db95c9a672be94ae9b79886b0a3356ca94
 }
