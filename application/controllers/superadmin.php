@@ -285,7 +285,12 @@ class Superadmin extends CI_Controller
 		$this->load->model('Facility_model');
 		$data['facilities'] = $this->Facility_model->get_facilities_by_student($id);
 
+		
 
 		$this->load->view('superadmin/student_details', $data);
 	}
+
+
+
+	
 }

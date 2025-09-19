@@ -1,24 +1,29 @@
 <?php
-class Admission_model extends CI_Model {
-    public function __construct() {
+class Admission_model extends CI_Model
+{
+    public function __construct()
+    {
         parent::__construct();
     }
 
-    public function get_all_centers() {
+    public function get_all_centers()
+    {
         return $this->db->get('center_details')->result_array();
     }
 
-    public function get_batches_by_center($center_id) {
+    public function get_batches_by_center($center_id)
+    {
         $this->db->select('id,batch_name, start_time,end_time, category, start_date');
         $this->db->where('center_id', $center_id);
         $batches = $this->db->get('batches')->result_array();
-        
-     
-        
+
+
+
         return $batches;
     }
 
-    public function get_lockers_by_center($center_id) {
+    public function get_lockers_by_center($center_id)
+    {
         $this->db->select('locker_no, rent as price, IFNULL((SELECT COUNT(*) FROM student_facilities sf WHERE sf.details LIKE CONCAT("%Locker No: ", f.locker_no, "%") AND sf.facility_name = "Locker"), 0) as is_booked');
         $this->db->from('facilities f');
         $this->db->where('f.center_id', $center_id);
@@ -26,7 +31,8 @@ class Admission_model extends CI_Model {
         return $this->db->get()->result_array();
     }
 
-    public function get_students() {
+    public function get_students()
+    {
         $this->db->select('s.*, c.name as center_name, b.timing as batch_timing');
         $this->db->from('students s');
         $this->db->join('centers c', 's.center_id = c.id', 'left');
@@ -34,7 +40,8 @@ class Admission_model extends CI_Model {
         return $this->db->get()->result_array();
     }
 
-    public function get_deactivated_students() {
+    public function get_deactivated_students()
+    {
         $this->db->select('s.*, c.name as center_name, b.timing as batch_timing, b.category as batch_category');
         $this->db->select('(SELECT GROUP_CONCAT(facility_name) FROM student_facilities sf WHERE sf.student_id = s.id) as facilities');
         $this->db->from('students s');
@@ -44,39 +51,41 @@ class Admission_model extends CI_Model {
         return $this->db->get()->result_array();
     }
 
-  public function get_student_by_idold($student_id) {
-    if (!is_numeric($student_id) || $student_id <= 0) {
-        log_message('error', 'Invalid student ID provided: ' . $student_id);
-        return null;
-    }
-    $this->db->select('s.*, c.name as center_name, b.start_time as batch_timing, b.category as batch_category');
-    $this->db->from('students s');
-    $this->db->join('center_details c', 's.center_id = c.id', 'left');
-    $this->db->join('batches b', 's.batch_id = b.id', 'left');
-    $this->db->where('s.id', $student_id);
+    public function get_student_by_idold($student_id)
+    {
+        if (!is_numeric($student_id) || $student_id <= 0) {
+            log_message('error', 'Invalid student ID provided: ' . $student_id);
+            return null;
+        }
+        $this->db->select('s.*, c.name as center_name, b.start_time as batch_timing, b.category as batch_category');
+        $this->db->from('students s');
+        $this->db->join('center_details c', 's.center_id = c.id', 'left');
+        $this->db->join('batches b', 's.batch_id = b.id', 'left');
+        $this->db->where('s.id', $student_id);
 
-    $student = $this->db->get()->row_array();
+        $student = $this->db->get()->row_array();
 
-    if ($student) {
-        $this->db->select('facility_name as name, details, amount');
-        $this->db->from('student_facilities');
-        $this->db->where('student_id', $student_id);
-        $student['facilities'] = $this->db->get()->result_array();
-    } else {
-        log_message('error', 'No student found for ID: ' . $student_id);
-    }
+        if ($student) {
+            $this->db->select('facility_name as name, details, amount');
+            $this->db->from('student_facilities');
+            $this->db->where('student_id', $student_id);
+            $student['facilities'] = $this->db->get()->result_array();
+        } else {
+            log_message('error', 'No student found for ID: ' . $student_id);
+        }
 
-    return $student;
-}
-
-public function get_student_by_id($student_id) {
-    if (!is_numeric($student_id) || $student_id <= 0) {
-        log_message('error', 'Invalid student ID provided: ' . $student_id);
-        return null;
+        return $student;
     }
 
-    // Step 1: Get student details with center and batch
-    $this->db->select('
+    public function get_student_by_id($student_id)
+    {
+        if (!is_numeric($student_id) || $student_id <= 0) {
+            log_message('error', 'Invalid student ID provided: ' . $student_id);
+            return null;
+        }
+
+        // Step 1: Get student details with center and batch
+        $this->db->select('
         s.*, 
         c.name as center_name, 
         b.start_time as batch_start_time, 
@@ -85,60 +94,61 @@ public function get_student_by_id($student_id) {
         b.batch_name as batch_name,
         b.duration as duration
     ');
-    $this->db->from('students s');
-    $this->db->join('center_details c', 's.center_id = c.id', 'left');
-    $this->db->join('batches b', 's.batch_id = b.id', 'left');
-    $this->db->where('s.id', $student_id);
-    
-    $student = $this->db->get()->row_array();
+        $this->db->from('students s');
+        $this->db->join('center_details c', 's.center_id = c.id', 'left');
+        $this->db->join('batches b', 's.batch_id = b.id', 'left');
+        $this->db->where('s.id', $student_id);
 
-    if ($student) {
-        // Step 2: Get student facilities
-        $this->db->select('facility_name as name, details, amount');
-        $this->db->from('student_facilities');
-        $this->db->where('student_id', $student_id);
-        $student['facilities'] = $this->db->get()->result_array();
+        $student = $this->db->get()->row_array();
 
-        // Step 3: Get only the coach for this student's center
-        $this->db->select('staff_name');
-        $this->db->from('staff');
-        $this->db->where('center_id', $student['center_id']);
-        $this->db->where('role', 'coach');
-        $coach = $this->db->get()->row_array();
-        $student['coach'] = $coach['staff_name'] ?? null;
+        if ($student) {
+            // Step 2: Get student facilities
+            $this->db->select('facility_name as name, details, amount');
+            $this->db->from('student_facilities');
+            $this->db->where('student_id', $student_id);
+            $student['facilities'] = $this->db->get()->result_array();
 
-        // Step 4: Get coordinator details
-        $this->db->select('name, mobile, email');
-        $this->db->from('coordinator');
-        $coordinator = $this->db->get()->row_array();
-        $student['coordinator_name']  = $coordinator['name']  ?? null;
-        $student['coordinator_phone'] = $coordinator['mobile'] ?? null;
-        $student['coordinator_email'] = $coordinator['email'] ?? null;
+            // Step 3: Get only the coach for this student's center
+            $this->db->select('staff_name');
+            $this->db->from('staff');
+            $this->db->where('center_id', $student['center_id']);
+            $this->db->where('role', 'coach');
+            $coach = $this->db->get()->row_array();
+            $student['coach'] = $coach['staff_name'] ?? null;
 
-        // Step 5: Get attendance link using contact (not id)
-        if (!empty($student['contact'])) {
-            $this->db->select('attendace_link');
-            $this->db->from('student_attendencelink');
-            $this->db->where('contact', $student['contact']);
-            $attendance = $this->db->get()->row_array();
-            $student['attendance_link'] = $attendance['attendace_link'] ?? null;
+            // Step 4: Get coordinator details
+            $this->db->select('name, mobile, email');
+            $this->db->from('coordinator');
+            $coordinator = $this->db->get()->row_array();
+            $student['coordinator_name'] = $coordinator['name'] ?? null;
+            $student['coordinator_phone'] = $coordinator['mobile'] ?? null;
+            $student['coordinator_email'] = $coordinator['email'] ?? null;
+
+            // Step 5: Get attendance link using contact (not id)
+            if (!empty($student['contact'])) {
+                $this->db->select('attendace_link');
+                $this->db->from('student_attendencelink');
+                $this->db->where('contact', $student['contact']);
+                $attendance = $this->db->get()->row_array();
+                $student['attendance_link'] = $attendance['attendace_link'] ?? null;
+            } else {
+                $student['attendance_link'] = null;
+            }
+
         } else {
-            $student['attendance_link'] = null;
+            log_message('error', 'No student found for ID: ' . $student_id);
         }
 
-    } else {
-        log_message('error', 'No student found for ID: ' . $student_id);
+        return $student;
     }
 
-    return $student;
-}
 
 
 
 
 
-
-    public function save_admission($data) {
+    public function save_admission($data)
+    {
         $this->db->trans_start();
 
         // Insert student data
@@ -161,13 +171,28 @@ public function get_student_by_id($student_id) {
             'payment_method' => $data['paymentMethod'],
             'admission_date' => $data['admissionDate'],
             'joining_date' => $data['joiningDate'],
-                    'course_duration'  => $data['course_duration'] ?? null, // NEW
+            'course_duration' => $data['course_duration'] ?? null, // NEW
 
             'created_at' => date('Y-m-d H:i:s')
         );
 
         $this->db->insert('students', $student_data);
         $student_id = $this->db->insert_id();
+
+
+        // Generate unique token
+        $unique_token = bin2hex(random_bytes(16)); // 32-char random token
+
+        // Build attendance link
+        $attendance_link = base_url("Admission/mark/" . $unique_token);
+
+        // Update student record with token & link
+        $this->db->where('id', $student_id);
+        $this->db->update('students', [
+            'unique_token' => $unique_token,
+            'attendace_link' => $attendance_link
+        ]);
+
 
         // Insert selected facilities
         if (!empty($data['facilities'])) {
@@ -189,7 +214,10 @@ public function get_student_by_id($student_id) {
         }
         return $student_id;
     }
-     public function get_deactive_students() {
+
+
+    public function get_deactive_students()
+    {
         $this->db->select('id, name, contact, center_id, batch_id, total_fees, paid_amount, remaining_amount, joining_date, status');
         $this->db->from('students');
         $this->db->where('status', 'Deactive');
@@ -198,9 +226,9 @@ public function get_student_by_id($student_id) {
         $query = $this->db->get();
         return $query->result_array();
     }
-      public function get_students_expiring_soon()
-{
-    $sql = "
+    public function get_students_expiring_soon()
+    {
+        $sql = "
         SELECT 
             s.*,
             DATE_ADD(s.joining_date, INTERVAL s.course_duration * 30 DAY) AS expiry_date
@@ -208,10 +236,11 @@ public function get_student_by_id($student_id) {
         WHERE DATE_ADD(s.joining_date, INTERVAL s.course_duration * 30 DAY) <= DATE_ADD(CURDATE(), INTERVAL 20 DAY)
     ";
 
-    $query = $this->db->query($sql);
-    return $query->result_array();
-}
- public function get_facility_by_student_id($student_id) {
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    public function get_facility_by_student_id($student_id)
+    {
         return $this->db
             ->where('student_id', $student_id)
             ->order_by('id', 'ASC')
