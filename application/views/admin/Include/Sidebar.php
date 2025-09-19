@@ -10,10 +10,7 @@
         </a>
         <!-- Center Management -->
 
-        <a class="nav-link <?php echo ($this->uri->segment(2) == 'CenterManagement2') ? 'active' : ''; ?>"
-            href="<?php echo base_url('admin/CenterManagement2'); ?>">
-            <i class="bi bi-credit-card"></i><span>Center Management</span>
-        </a>
+
 
         <!-- Admission Management (Parent with Submenu) -->
         <div class="nav-item">

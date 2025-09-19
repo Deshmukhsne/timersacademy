@@ -25,52 +25,59 @@ class Expense extends CI_Controller
         $this->load->view('superadmin/Expenses', $data);
     }
 
-    // Save new expense
-    // public function add()
-    // {
-    //     $dt = $this->input->post();
-    //     $expenseData = [
-    //         'center_id' => $this->input->post('center_id'),
-    //         'title'     => $this->input->post('title'),
-    //         'date'      => $this->input->post('date'),
-    //         'amount'    => $this->input->post('amount'),
-    //         'category'  => $this->input->post('category'),
-    //         'description' => $this->input->post('description'),
-    //         'type'      => 'manual',
-    //         'status'    => 'pending',
-    //         'added_by'    => $this->input->post('added_by'),
-    //         'created_at' => date('Y-m-d H:i:s')
-
-    //     ];
-
-    //     $this->Expense_model->insert_expense($expenseData);
-    //     $this->session->set_flashdata('success', 'Expense added successfully!');
-    //     redirect('superadmin/Expenses');
-    // }
+    //Save new expense
     public function add()
     {
-        $addedBy = $this->input->post('added_by');
-        $status  = ($addedBy === 'superadmin') ? 'approved' : 'pending';
-
+        $dt = $this->input->post();
         $expenseData = [
-            'center_id'   => $this->input->post('center_id'),
-            'title'       => $this->input->post('title'),
-            'date'        => $this->input->post('date'),
-            'amount'      => $this->input->post('amount'),
-            'category'    => $this->input->post('category'),
+            'center_id' => $this->input->post('center_id'),
+            'title'     => $this->input->post('title'),
+            'date'      => $this->input->post('date'),
+            'amount'    => $this->input->post('amount'),
+            'category'  => $this->input->post('category'),
             'description' => $this->input->post('description'),
-            'type'        => 'manual',
-            'status'      => $status,           // <-- auto-approve for superadmin
-            'added_by'    => $addedBy,
-            'created_at'  => date('Y-m-d H:i:s')
+            'type'      => 'manual',
+            'status'    => 'pending',
+            'added_by'    => $this->input->post('added_by'),
+            'created_at' => date('Y-m-d H:i:s')
+
         ];
 
         $this->Expense_model->insert_expense($expenseData);
         $this->session->set_flashdata('success', 'Expense added successfully!');
         redirect('superadmin/Expenses');
     }
+//    public function add()
+// {
+//     // Get raw input data (JSON)
+//     $input = json_decode(file_get_contents('php://input'), true);
 
+//     $addedBy = $input['added_by'] ?: $this->session->userdata('user_role'); // Fallback to session
+//     $status = ($addedBy === 'superadmin') ? 'approved' : 'pending';
 
+//     $expenseData = [
+//         'center_id'   => $input['center_id'] ?: $this->session->userdata('center_id'), // Fallback
+//         'title'       => '', // Add logic or remove if not needed
+//         'date'        => $input['date'],
+//         'amount'      => $input['amount'],
+//         'category'    => $input['category'],
+//         'description' => $input['description'],
+//         'type'        => 'manual',
+//         'status'      => $status,
+//         'added_by'    => $addedBy,
+//         'created_at'  => date('Y-m-d H:i:s')
+//     ];
+
+//     $response = ['status' => 'error', 'message' => 'Failed to add expense'];
+//     if ($this->Expense_model->insert_expense($expenseData)) {
+//         $response = ['status' => 'success', 'message' => 'Expense added successfully'];
+//     }
+
+//     // Return JSON response
+//     header('Content-Type: application/json');
+//     echo json_encode($response);
+//     exit;
+// }
     // Apply filter
     public function filter()
     {

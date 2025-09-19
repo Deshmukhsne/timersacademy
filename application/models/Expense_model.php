@@ -60,6 +60,9 @@ class Expense_model extends CI_Model
         $this->db->where('id', $id);
         return $this->db->update('expenses', ['status' => $status]);
     }
+<<<<<<< HEAD
+
+=======
     // Admin - get expenses only for his center
 
 
@@ -81,4 +84,5 @@ class Expense_model extends CI_Model
         $this->db->order_by('expenses.date', 'DESC');
         return $this->db->get()->result();
     }
+>>>>>>> 1f8b91f938636438f20fd0ba5a98ddf0640ec496
 }
