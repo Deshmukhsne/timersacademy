@@ -75,7 +75,7 @@ class Finance extends CI_Controller {
                 $r['stu_total']   = isset($r['stu_total'])   ? (float)$r['stu_total']   : 0.0;
                 $r['fac_weekly']  = isset($r['fac_weekly'])  ? (float)$r['fac_weekly']  : 0.0;
                 $r['fac_monthly'] = isset($r['fac_monthly']) ? (float)$r['fac_monthly'] : 0.0;
-                $r['fac_yearly']  = isset($r['fac_yearly'])  ? (float)$r['fac_yearly']  : 0.0;
+                $r['fac_yearly']  = isset($r['fac_yearly']) ? (float)$r['fac_yearly']  : 0.0;
                 $r['fac_total']   = isset($r['fac_total'])   ? (float)$r['fac_total']   : 0.0;
 
                 // overlapping windows (student + facility within that window)
@@ -128,5 +128,89 @@ class Finance extends CI_Controller {
         $facilities = $this->db->get()->result_array();
 
         $this->load->view('superadmin/finance_details', compact('center','students','facilities'));
+    }
+
+    /**
+     * AJAX endpoint: returns a JSON summary for a center.
+     * Accepts GET or POST center_id.
+     * Responds:
+     *  { status: 'success', data: { center_id, center_name, total_students, active_students, students_with_due, total_due, total_paid, last_attendance } }
+     */
+    public function get_center_summary($center_id = null)
+    {
+        // accept center_id as GET/POST or parameter
+        $cid = $this->input->get_post('center_id', true);
+        if (empty($cid) && !empty($center_id)) {
+            $cid = $center_id;
+        }
+
+        if (empty($cid) || !is_numeric($cid)) {
+            return $this->output
+                ->set_status_header(400)
+                ->set_content_type('application/json')
+                ->set_output(json_encode(['status' => 'error', 'message' => 'Invalid center id']));
+        }
+
+        $cid = (int) $cid;
+
+        try {
+            // center name
+            $center = $this->db->select('id, name')->where('id', $cid)->get('center_details')->row();
+            if (!$center) {
+                return $this->output
+                    ->set_status_header(404)
+                    ->set_content_type('application/json')
+                    ->set_output(json_encode(['status' => 'error', 'message' => 'Center not found']));
+            }
+
+            // total students
+            $total_students = (int) $this->db->where('center_id', $cid)->count_all_results('students');
+
+            // active students (status = 'Active')
+            $this->db->where('center_id', $cid);
+            $this->db->where('status', 'Active');
+            $active_students = (int) $this->db->count_all_results('students');
+
+            // students with pending fees and total remaining amount
+            $this->db->select('COUNT(*) as cnt, COALESCE(SUM(remaining_amount),0) as total_due', false);
+            $this->db->where('center_id', $cid);
+            $this->db->where('remaining_amount >', 0);
+            $due_row = $this->db->get('students')->row_array();
+            $students_with_due = isset($due_row['cnt']) ? (int)$due_row['cnt'] : 0;
+            $total_due = isset($due_row['total_due']) ? (float)$due_row['total_due'] : 0.0;
+
+            // total paid amount for this center
+            $this->db->select('COALESCE(SUM(paid_amount),0) as total_paid', false);
+            $this->db->where('center_id', $cid);
+            $paid_row = $this->db->get('students')->row_array();
+            $total_paid = isset($paid_row['total_paid']) ? (float)$paid_row['total_paid'] : 0.0;
+
+            // last attendance (max)
+            $this->db->select('MAX(last_attendance) as last_attendance', false);
+            $this->db->where('center_id', $cid);
+            $la_row = $this->db->get('students')->row_array();
+            $last_attendance = $la_row['last_attendance'] ?? null;
+
+            $data = [
+                'center_id' => $center->id,
+                'center_name' => $center->name,
+                'total_students' => $total_students,
+                'active_students' => $active_students,
+                'students_with_due' => $students_with_due,
+                'total_due' => (float)$total_due,
+                'total_paid' => (float)$total_paid,
+                'last_attendance' => $last_attendance
+            ];
+
+            return $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(['status' => 'success', 'data' => $data]));
+        } catch (Exception $e) {
+            log_message('error', 'Finance::get_center_summary error: ' . $e->getMessage());
+            return $this->output
+                ->set_status_header(500)
+                ->set_content_type('application/json')
+                ->set_output(json_encode(['status' => 'error', 'message' => 'Server error']));
+        }
     }
 }

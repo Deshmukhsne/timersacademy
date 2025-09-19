@@ -8,7 +8,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 function money($n) { return number_format((float)$n, 2); }
 
-// If controller supplied rows, use them. Otherwise, try to fetch using CI DB (if available).
 if (!isset($rows) || !is_array($rows)) {
     $rows = [];
 
@@ -60,10 +59,8 @@ if (!isset($rows) || !is_array($rows)) {
     }
 }
 
-// Ensure rows is array
 if (!is_array($rows)) $rows = [];
 
-// If controller didn't provide $grand, compute here from $rows
 if (!isset($grand) || !is_array($grand)) {
     $grand = [
         'week' => 0.0,
@@ -122,7 +119,6 @@ if (!isset($grand_alltime)) {
     }
     *{box-sizing:border-box}
     body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:#111}
-    /* outer wrap uses padding-left equal to sidebar width so content area = viewport - sidebar */
     .wrap{
       width:100%;
       padding:20px;
@@ -130,13 +126,11 @@ if (!isset($grand_alltime)) {
       transition: padding-left 0.23s ease;
       box-sizing:border-box;
     }
-    /* when we detect minimized state we'll set --sidebar-width to minimized via JS; no CSS class required */
-    /* content container centers the card within the available content width */
     .content {
       max-width:1100px;
-      margin:0 auto;              /* centers content area horizontally */
+      margin:0 auto;
       display:flex;
-      justify-content:center;     /* centers the card in the content area */
+      justify-content:center;
       padding:8px;
     }
 
@@ -166,7 +160,7 @@ if (!isset($grand_alltime)) {
     .error{background:#fff6f6;border:1px solid #ffd6d6;padding:10px;border-radius:8px;margin-bottom:12px;color:#8b0000}
 
     @media (max-width:980px){
-      .wrap{padding-left:12px} /* on small screens sidebar is likely hidden; fallback safe value */
+      .wrap{padding-left:12px}
       .content{padding:6px}
       .card{padding:16px}
       table{min-width:640px}
@@ -203,7 +197,7 @@ if (!isset($grand_alltime)) {
                 <th>Center</th>
                 <th class="right">Weekly (₹)</th>
                 <th class="right">Monthly (₹)</th>
-                <th class="right">Yearly (₹)</th> <!-- renamed: shows student all-time -->
+                <th class="right">Yearly (₹)</th>
                 <th class="right">Facility Total (All-time) (₹)</th>
                 <th class="right">All-time Total (₹)</th>
                 <th>Action</th>
@@ -231,7 +225,7 @@ if (!isset($grand_alltime)) {
                   <td class="right">₹ <?= money($yearly_display) ?></td>
                   <td class="right">₹ <?= money($ftot) ?></td>
                   <td class="right">₹ <?= money($alltime) ?></td>
-                  <td><a href="<?= (function_exists('base_url') ? base_url("finance/details/{$cid}") : '#') ?>">Details</a></td>
+                  <td><a href="<?= (function_exists('base_url') ? base_url("finance/details/{$cid}") : '#') ?>" class="center-details-link" data-center-id="<?= $cid ?>">Details</a></td>
                 </tr>
               <?php endforeach; endif; ?>
             </tbody>
@@ -257,53 +251,63 @@ if (!isset($grand_alltime)) {
     </div><!-- .content -->
   </div><!-- .wrap -->
 
+  <!-- Center Details Modal -->
+  <div class="modal fade" id="centerDetailsModal" tabindex="-1" aria-labelledby="centerDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+      <div class="modal-content" style="border-radius:12px;">
+        <div class="modal-header" style="border-bottom: none;">
+          <h5 class="modal-title" id="centerDetailsModalLabel">Center Summary</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="centerDetailsModalBody">
+          <div style="min-height:80px; display:flex; align-items:center; justify-content:center;">
+            <div class="small text-muted">Loading...</div>
+          </div>
+        </div>
+        <div class="modal-footer" style="border-top: none;">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     (function () {
       const wrap = document.getElementById('financeWrap');
 
-      // safe defaults
       const DEFAULT_SIDEBAR = 250;
       const MINIMIZED_SIDEBAR = 60;
 
-      // finds likely sidebar element
       function findSidebar() {
         return document.querySelector('.sidebar, #sidebar, .main-sidebar, .sidebar-area, .left-sidebar');
       }
 
-      // update CSS variable --sidebar-width based on current sidebar width or minimized state
       function updateSidebarWidth() {
         const sidebar = findSidebar();
         let width = DEFAULT_SIDEBAR;
 
         if (!sidebar) {
-          // If sidebar is not found, but wrap has class minimized, use minimized width
           if (wrap && wrap.classList.contains('minimized')) width = MINIMIZED_SIDEBAR;
         } else {
-          // If sidebar has minimized/collapsed class, pick minimized width
           const cls = sidebar.className || '';
           if (cls.includes('minimized') || cls.includes('collapsed') || cls.includes('sidebar-collapse')) {
             width = MINIMIZED_SIDEBAR;
           } else {
-            // prefer offsetWidth (px)
             width = Math.max(sidebar.offsetWidth || DEFAULT_SIDEBAR, 48);
           }
         }
 
-        // set CSS custom property on document root for usage in CSS
         document.documentElement.style.setProperty('--sidebar-width', width + 'px');
       }
 
-      // run on load
       updateSidebarWidth();
 
-      // re-run on resize (debounced)
       let resizeTimer = null;
       window.addEventListener('resize', function () {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(updateSidebarWidth, 120);
       });
 
-      // observe class changes on the sidebar (to detect minimized/collapsed toggles)
       const sidebar = findSidebar();
       if (sidebar) {
         const mo = new MutationObserver(function (mutations) {
@@ -316,16 +320,13 @@ if (!isset($grand_alltime)) {
         mo.observe(sidebar, { attributes: true, attributeFilter: ['class'] });
       }
 
-      // listen for programmatic sidebarToggle events from your other pages/scripts
       document.addEventListener('sidebarToggle', function (e) {
         updateSidebarWidth();
-        // reflect wrap.minimized if event carries it
         if (wrap && e.detail && typeof e.detail.minimized !== 'undefined') {
           wrap.classList.toggle('minimized', !!e.detail.minimized);
         }
       });
 
-      // keyboard 'm' for quick testing (preserves your existing behavior)
       document.addEventListener('keydown', function (e) {
         if (e.key === 'm' && !e.ctrlKey && !e.metaKey && !e.altKey) {
           if (wrap) wrap.classList.toggle('minimized');
@@ -333,7 +334,121 @@ if (!isset($grand_alltime)) {
           document.dispatchEvent(new CustomEvent('sidebarToggle', { detail: { minimized: wrap && wrap.classList.contains('minimized') } }));
         }
       });
+
+      // -----------------------
+      // Details modal logic
+      // -----------------------
+
+      // CSRF fields if CI has csrf protection (safe to include)
+      const CSRF = {
+        name: '<?= $this->security->get_csrf_token_name() ?>',
+        hash: '<?= $this->security->get_csrf_hash() ?>'
+      };
+
+      // Helper: format INR
+      function inr(n) {
+        if (n === null || n === undefined) return '0.00';
+        return Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+      // Build the modal content HTML given the data
+      function buildDetailsHtml(data) {
+        return `
+          <div>
+            <div style="margin-bottom:10px;">
+              <strong style="font-size:1.05rem;">${escapeHtml(data.center_name)}</strong>
+              <div class="small text-muted">Center ID: ${data.center_id}</div>
+            </div>
+
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+              <div style="flex:1; min-width:180px; background:#fff; border-radius:8px; padding:10px; border:1px solid #f0f0f0;">
+                <div class="small text-muted">Total Students</div>
+                <div style="font-weight:700; margin-top:6px;">${escapeHtml(String(data.total_students || 0))}</div>
+              </div>
+
+              <div style="flex:1; min-width:180px; background:#fff; border-radius:8px; padding:10px; border:1px solid #f0f0f0;">
+                <div class="small text-muted">Active Students</div>
+                <div style="font-weight:700; margin-top:6px;">${escapeHtml(String(data.active_students || 0))}</div>
+              </div>
+
+              <div style="flex:1; min-width:200px; background:#fff; border-radius:8px; padding:10px; border:1px solid #f0f0f0;">
+                <div class="small text-muted">Students with Pending Fees</div>
+                <div style="font-weight:700; margin-top:6px;">${escapeHtml(String(data.students_with_due || 0))}</div>
+                <div class="small text-muted">Total Pending: ₹ ${inr(data.total_due)}</div>
+              </div>
+
+              <div style="flex:1; min-width:200px; background:#fff; border-radius:8px; padding:10px; border:1px solid #f0f0f0;">
+                <div class="small text-muted">Total Paid (Students)</div>
+                <div style="font-weight:700; margin-top:6px;">₹ ${inr(data.total_paid)}</div>
+              </div>
+            </div>
+
+            ${data.last_attendance ? `<div style="margin-top:12px;" class="small text-muted">Last attendance recorded: ${escapeHtml(data.last_attendance)}</div>` : ''}
+          </div>
+        `;
+      }
+
+      // Safe HTML escape
+      function escapeHtml(unsafe) {
+        if (unsafe === null || unsafe === undefined) return '';
+        return String(unsafe)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      // Attach click handlers to Details links (delegated)
+      document.addEventListener('click', function (ev) {
+        const a = ev.target.closest && ev.target.closest('a.center-details-link');
+        if (!a) return;
+        ev.preventDefault();
+
+        const centerId = a.getAttribute('data-center-id') || a.dataset.centerId || a.href.split('/').pop();
+        if (!centerId) return;
+
+        // show modal with loader
+        const modalEl = document.getElementById('centerDetailsModal');
+        const modalBody = document.getElementById('centerDetailsModalBody');
+        modalBody.innerHTML = '<div style="min-height:80px; display:flex; align-items:center; justify-content:center;"><div class="small text-muted">Loading...</div></div>';
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+
+        // Build URL
+        const url = '<?= base_url("finance/get_center_summary/") ?>' + encodeURIComponent(centerId);
+
+        // fetch JSON
+        fetch(url, {
+          method: 'GET',
+          credentials: 'same-origin',
+          headers: {
+            'Accept': 'application/json'
+          }
+        })
+        .then(function (resp) {
+          if (!resp.ok) {
+            return resp.text().then(t => { throw new Error('Server error: ' + (t || resp.status)); });
+          }
+          return resp.json();
+        })
+        .then(function (json) {
+          if (!json || json.status !== 'success' || !json.data) {
+            modalBody.innerHTML = '<div class="small text-muted">No data available</div>';
+            return;
+          }
+          modalBody.innerHTML = buildDetailsHtml(json.data);
+        })
+        .catch(function (err) {
+          console.error('Failed to fetch center summary', err);
+          modalBody.innerHTML = '<div class="small text-muted text-danger">Failed to load data. Please try again later.</div>';
+        });
+      });
+
     })();
   </script>
+
+  <!-- bootstrap (if not already loaded in your layout) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
