@@ -9,6 +9,8 @@ class Superadmin extends CI_Controller
 		parent::__construct();
 		$this->load->model('DashboardModel');
 		$this->load->model('Student_model'); // Load the Student_model
+		$this->load->model('Center_model');
+		$this->load->model('Permission_model');
 		$this->load->database();
 
 		// ✅ Block access if not logged in
@@ -255,9 +257,50 @@ class Superadmin extends CI_Controller
 
 	public function Permission()
 	{
+		$data['centers'] = $this->Center_model->get_all_centers();
 
-		$this->load->view('superadmin/Permission');
+		$modules = [
+			'center_mgmt' => 'Center Management',
+			'admission' => 'Admission Management',
+			'students' => 'Students Management',
+			'events' => 'Event Management',
+			'leave' => 'Leave Management'
+		];
+
+		foreach ($data['centers'] as &$center) {
+			$center['permissions'] = $this->Permission_model->get_by_center($center['id']);
+		}
+
+
+		$data['modules'] = $modules;
+		$this->load->view('superadmin/Permission', $data);
 	}
+
+	// Save permissions from form
+	public function save_permissions($center_id)
+	{
+		$posted = $this->input->post('permissions') ?? [];
+
+		$modules = [
+			'center_mgmt',
+			'admission',
+			'students',
+			'events',
+			'leave',
+
+		];
+
+		$final = [];
+		foreach ($modules as $key) {
+			$final[$key] = isset($posted[$key]) ? 1 : 0;
+		}
+
+		$this->Permission_model->save_permissions($center_id, $final);
+
+		$this->session->set_flashdata('success', 'Permissions updated.');
+		redirect('superadmin/Permission');
+	}
+
 	public function add_new_center()
 	{
 		$this->load->view('superadmin/add_new_center');
@@ -285,12 +328,8 @@ class Superadmin extends CI_Controller
 		$this->load->model('Facility_model');
 		$data['facilities'] = $this->Facility_model->get_facilities_by_student($id);
 
-		
+
 
 		$this->load->view('superadmin/student_details', $data);
 	}
-
-
-
-	
 }

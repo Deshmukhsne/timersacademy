@@ -94,179 +94,38 @@
                             </div>
                             <div class="card-body">
 
-                                <div class="accordion" id="permissionAccordion">
-
-                                    <!-- center template -->
-                                    <div class="accordion-item" data-center="Center 1">
-                                        <h2 class="accordion-header">
-                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#c1">
-                                                <span class="center-name"><i class="fa fa-building me-2"></i>Center 1</span>
-                                            </button>
-                                        </h2>
-                                        <div id="c1" class="accordion-collapse collapse show" data-bs-parent="#permissionAccordion">
-                                            <div class="accordion-body">
-                                                <p class="admin-name"><i class="fa fa-user me-2"></i>Coach John Doe</p>
-                                                <div class="module">
-                                                    <h6 class="mb-2"><i class="fa fa-table me-2"></i>Dashboard</h6>
-                                                    <div class="row gy-2">
-                                                        <div class="col-12 col-md-6">
-                                                            <div class="form-check form-switch">
-                                                                <input class="form-check-input perm" type="checkbox" data-key="center_mgmt">
-                                                                <label class="form-check-label">Center Management</label>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-12 col-md-6">
-                                                            <div class="form-check form-switch">
-                                                                <input class="form-check-input perm" type="checkbox" checked data-key="admission">
-                                                                <label class="form-check-label">Admission Management</label>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-12 col-md-6">
-                                                            <div class="form-check form-switch">
-                                                                <input class="form-check-input perm" type="checkbox" checked data-key="students">
-                                                                <label class="form-check-label">Students Management</label>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-12 col-md-6">
-                                                            <div class="form-check form-switch">
-                                                                <input class="form-check-input perm" type="checkbox" data-key="events">
-                                                                <label class="form-check-label">Event Management</label>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-12 col-md-6">
-                                                            <div class="form-check form-switch">
-                                                                <input class="form-check-input perm" type="checkbox" data-key="finance">
-                                                                <label class="form-check-label">Finance Management</label>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-12 col-md-6">
-                                                            <div class="form-check form-switch">
-                                                                <input class="form-check-input perm" type="checkbox" data-key="profile">
-                                                                <label class="form-check-label">Super Admin Profile</label>
-                                                            </div>
-                                                        </div>
+                                <?php foreach ($centers as $center): ?>
+                                    <div class="card mb-3">
+                                        <div class="card-header">
+                                            <strong><?= $center['name']; ?></strong>
+                                        </div>
+                                        <div class="card-body">
+                                            <form method="post" action="<?= base_url('superadmin/save_permissions/' . $center['id']) ?>">
+                                                <?php foreach ($modules as $key => $label): ?>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox"
+                                                            name="permissions[<?= $key ?>]"
+                                                            value="1"
+                                                            <?= !empty($center['permissions'][$key]) && $center['permissions'][$key] ? 'checked' : '' ?>>
+                                                        <label class="form-check-label"><?= $label ?></label>
                                                     </div>
-                                                </div>
-                                            </div>
+                                                <?php endforeach; ?>
+
+                                                <button type="submit" class="btn btn-primary mt-2">Save</button>
+                                            </form>
                                         </div>
                                     </div>
-
-                                    <div class="accordion-item" data-center="Center 2">
-                                        <h2 class="accordion-header">
-                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c2">
-                                                <span class="center-name"><i class="fa fa-building me-2"></i>Center 2</span>
-                                            </button>
-                                        </h2>
-                                        <div id="c2" class="accordion-collapse collapse" data-bs-parent="#permissionAccordion">
-                                            <div class="accordion-body">
-                                                <p class="admin-name"><i class="fa fa-user me-2"></i>Coach Jane Smith</p>
-                                                <div class="module">
-                                                    <h6 class="mb-2"><i class="fa fa-table me-2"></i>Dashboard</h6>
-                                                    <div class="row gy-2">
-                                                        <!-- reuse same keys for demo, in real app server provides defaults -->
-                                                        <div class="col-12 col-md-6">
-                                                            <div class="form-check form-switch">
-                                                                <input class="form-check-input perm" type="checkbox" data-key="center_mgmt">
-                                                                <label class="form-check-label">Center Management</label>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-12 col-md-6">
-                                                            <div class="form-check form-switch">
-                                                                <input class="form-check-input perm" type="checkbox" checked data-key="admission">
-                                                                <label class="form-check-label">Admission Management</label>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-12 col-md-6">
-                                                            <div class="form-check form-switch">
-                                                                <input class="form-check-input perm" type="checkbox" checked data-key="students">
-                                                                <label class="form-check-label">Students Management</label>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-12 col-md-6">
-                                                            <div class="form-check form-switch">
-                                                                <input class="form-check-input perm" type="checkbox" data-key="events">
-                                                                <label class="form-check-label">Event Management</label>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-12 col-md-6">
-                                                            <div class="form-check form-switch">
-                                                                <input class="form-check-input perm" type="checkbox" data-key="finance">
-                                                                <label class="form-check-label">Finance Management</label>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-12 col-md-6">
-                                                            <div class="form-check form-switch">
-                                                                <input class="form-check-input perm" type="checkbox" data-key="profile">
-                                                                <label class="form-check-label">Super Admin Profile</label>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-
+                                <?php endforeach; ?>
                             </div>
                         </div>
                     </div>
-                </div>
 
-            </div>
+                </div>
         </main>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        (() => {
-            const toggleAllBtn = document.getElementById('toggleAllBtn');
-            const saveBtn = document.getElementById('saveBtn');
-            const perms = () => [...document.querySelectorAll('.perm')];
-            const updateToggle = () => {
-                const all = perms();
-                toggleAllBtn.textContent = (all.length && all.every(i => i.checked)) ? 'Toggle All Off' : 'Toggle All On'
-            }
-            toggleAllBtn.onclick = () => {
-                const all = perms();
-                const on = all.length && all.every(i => i.checked);
-                all.forEach(i => i.checked = !on);
-                updateToggle()
-            }
-            document.addEventListener('change', e => {
-                if (e.target.classList.contains('perm')) updateToggle()
-            })
-            saveBtn.onclick = () => {
-                const payload = [];
-                document.querySelectorAll('.accordion-item').forEach(item => {
-                    const center = item.dataset.center || item.querySelector('.center-name')?.textContent?.trim();
-                    if (!center) return;
-                    const permsArr = [];
-                    item.querySelectorAll('.perm').forEach(input => {
-                        const label = input.closest('.form-check')?.querySelector('.form-check-label')?.textContent?.trim() || input.dataset.key;
-                        permsArr.push({
-                            key: input.dataset.key,
-                            label,
-                            enabled: !!input.checked
-                        });
-                    });
-                    payload.push({
-                        center,
-                        perms: permsArr
-                    });
-                });
-                console.log('permissions payload', payload);
-                // TODO: send to server with fetch('/save', {method:'POST',body:JSON.stringify(payload)})
-                bootstrap.Toast && new bootstrap.Toast(document.body).show();
-                alert('Permissions ready — check console for payload.');
-            }
-            updateToggle();
 
-            // sidebar auto-resize (minimal)
-            const wrapper = document.getElementById('permissionWrapper');
-            document.querySelectorAll('.sidebar-toggle').forEach(btn => btn.addEventListener('click', () => wrapper.classList.toggle('min')));
-        })();
-    </script>
 </body>
 
 </html>

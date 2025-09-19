@@ -52,13 +52,17 @@ class Auth extends CI_Controller
             // $admin = $this->Auth_model->get_admin($username); // username is center_number here
             $admin = $this->Auth_model->get_admin_by_name($username); // username is now center name
 
-
             if ($admin && password_verify($password, $admin->password)) {
+                // ✅ get permissions from DB
+                $this->load->model('Permission_model');
+                $permissions = $this->Permission_model->get_by_center($admin->id);
+
                 $this->session->set_userdata([
                     'id'        => $admin->id,
                     'username'  => $admin->name,
                     'role'      => 'admin',
-                    'center_id' => $admin->id,   // ✅ center’s primary key
+                    'center_id' => $admin->id,
+                    'permissions' => $permissions,  // <-- store here
                     'logged_in' => TRUE
                 ]);
 
