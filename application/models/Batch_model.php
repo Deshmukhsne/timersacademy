@@ -6,6 +6,7 @@ class Batch_model extends CI_Model {
         parent::__construct();
         $this->load->database();
     }
+    protected $table = 'batches';
 
     public function get_batches($filters = []) {
         $this->db->select('*');
@@ -70,9 +71,39 @@ class Batch_model extends CI_Model {
     }
 }
 
+// // Insert batch data
+//     public function insert_batch($data) {
+
+//         return $this->db->insert($this->batches, $data);
+//     }
+
+    // Fetch all batches
+    public function get_batches() {
+        return $this->db->get($this->batches)->result();
+    }
+
+    // Fetch batch by id (for edit/delete if needed)
+    public function get_batch($id) {
+        return $this->db->where('id', $id)->get($this->batches)->row();
+    }
+
+    // Update batch
+    public function update_batch($id, $data) {
+        return $this->db->where('id', $id)->update($this->batches, $data);
+    }
+
+    // Delete batch
+    public function delete_batch($id) {
+        return $this->db->where('id', $id)->delete($this->batches;
+    }
 
 
 
+ // Insert new batch
+    public function insert_batch($data) {
+        $this->db->insert($this->table, $data);
+        return $this->db->insert_id(); // return last inserted ID
+    }
 
 
 

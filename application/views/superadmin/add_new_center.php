@@ -190,6 +190,10 @@
             .show-sidebar .sidebar {
                 width: 250px;
             }
+            .form-section { display: none;
+             }
+.form-section.active { display: block; }
+
         }
     </style>
 </head>
@@ -234,48 +238,49 @@
                     </div>
                 </div>
 
-                <!-- Center Details Form -->
+<!-- Center Details Form -->
 <div class="form-container form-section active" id="center-details">
     <h3 class="section-title"><i class="fas fa-info-circle me-2"></i>Center Details</h3>
-    <form id="centerForm" novalidate>
+    <!-- <form id="centerForm" novalidate> -->
+        <form id="centerForm" method="POST" action="<?= base_url('Center/save_center') ?>" novalidate>
         <div class="row mb-3">
             <div class="col-md-6">
-                <label for="centerName" class="form-label required-field">Center Name</label>
-                <input type="text" class="form-control" id="centerName" required>
+                <label for="name" class="form-label required-field">Center Name</label>
+                <input type="text" class="form-control" id="name" name="name" required>
                 <div class="invalid-feedback">Center name is required.</div>
             </div>
             <div class="col-md-6">
-                <label for="centerNumber" class="form-label required-field">Center Number</label>
-                <input type="text" class="form-control" id="centerNumber" readonly required>
+                <label for="center_number" class="form-label required-field">Center Number</label>
+                <input type="text" class="form-control" id="center_number" name="center_number" readonly required>
                 <div class="invalid-feedback">Center number is required.</div>
             </div>
         </div>
         <div class="mb-3">
             <label for="address" class="form-label required-field">Address</label>
-            <textarea class="form-control" id="address" rows="3" required></textarea>
+            <textarea class="form-control" id="address" name="address" rows="3" required></textarea>
             <div class="invalid-feedback">Address is required.</div>
         </div>
         <div class="row mb-3">
             <div class="col-md-6">
-                <label for="openingTime" class="form-label required-field">Opening Time</label>
-                <input type="time" class="form-control" id="openingTime" required>
+                <label for="center_timing_from" class="form-label required-field">Opening Time</label>
+                <input type="time" class="form-control" id="center_timing_from" name="center_timing_from" required>
                 <div class="invalid-feedback">Opening time is required.</div>
             </div>
             <div class="col-md-6">
-                <label for="closingTime" class="form-label required-field">Closing Time</label>
-                <input type="time" class="form-control" id="closingTime" required>
+                <label for="center_timing_to" class="form-label required-field">Closing Time</label>
+                <input type="time" class="form-control" id="center_timing_to" name="center_timing_to" required>
                 <div class="invalid-feedback">Closing time must be after opening time.</div>
             </div>
         </div>
         <div class="row mb-3">
             <div class="col-md-6">
-                <label for="printPaidDate" class="form-label">Paid Date</label>
-                <input type="date" class="form-control" id="printPaidDate">
+                <label for="rent_paid_date" class="form-label">Paid Date</label>
+                <input type="date" class="form-control" id="rent_paid_date" name="rent_paid_date">
             </div>
             <div class="col-md-6">
                 <label for="password" class="form-label required-field">Password</label>
                 <div class="input-group">
-                    <input type="password" class="form-control" id="password" required minlength="8">
+                    <input type="password" class="form-control" id="password" name="password" required minlength="8">
                     <button type="button" class="btn btn-outline-secondary" id="togglePassword">
                         <i class="fas fa-eye"></i>
                     </button>
@@ -284,11 +289,11 @@
             </div>
         </div>
         <div class="col-md-6 mb-3">
-            <label for="center_rent" class="form-label required-field">Rent</label>
+            <label for="rent_amount" class="form-label required-field">Rent</label>
             <input
                 type="number"
-                id="center_rent"
-                name="center_rent"
+                id="rent_amount"
+                name="rent_amount"
                 class="form-control"
                 placeholder="Enter Rent Amount"
                 required
@@ -297,88 +302,120 @@
             <div class="invalid-feedback">Please enter a valid rent amount greater than 0.</div>
         </div>
         <div class="d-flex justify-content-end">
-            <button type="button" class="btn btn-primary btn-next" data-next="batch-details">
+            <button type="submit" class="btn btn-primary btn-next" data-next="batch-details">
                 Next: Batch Details <i class="fas fa-arrow-right ms-2"></i>
             </button>
         </div>
     </form>
 </div>
 
+
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const form = document.getElementById("centerForm");
-        const nextBtn = form.querySelector(".btn-next");
-        const centerNumber = document.getElementById("centerNumber");
-        const openingTime = document.getElementById("openingTime");
-        const closingTime = document.getElementById("closingTime");
-        const password = document.getElementById("password");
-        const togglePassword = document.getElementById("togglePassword");
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("centerForm");
+    const nextBtn = form.querySelector(".btn-next");
+    const centerNumber = document.getElementById("center_number");
+    const openingTime = document.getElementById("center_timing_from");
+    const closingTime = document.getElementById("center_timing_to");
+    const password = document.getElementById("password");
+    const togglePassword = document.getElementById("togglePassword");
 
-        // Auto-generate Center Number
-        function generateCenterNumber() {
-            const timestamp = Date.now().toString().slice(-8); // Last 8 digits of timestamp
-            const random = Math.floor(1000 + Math.random() * 9000); // 4-digit random number
-            centerNumber.value = `CTR-${timestamp}-${random}`;
-            validateForm(); // Revalidate after setting center number
-        }
-
-        // Toggle Password Visibility
-        togglePassword.addEventListener("click", function () {
-            const type = password.getAttribute("type") === "password" ? "text" : "password";
-            password.setAttribute("type", type);
-            this.querySelector("i").classList.toggle("fa-eye");
-            this.querySelector("i").classList.toggle("fa-eye-slash");
-        });
-
-        // Validate form and update button state
-        function validateForm() {
-            let isValid = form.checkValidity();
-
-            // Custom validation for closing time
-            if (openingTime.value && closingTime.value) {
-                if (closingTime.value <= openingTime.value) {
-                    closingTime.setCustomValidity("Closing time must be after opening time.");
-                    isValid = false;
-                } else {
-                    closingTime.setCustomValidity("");
-                }
-            }
-
-            // Apply Bootstrap validation styles
-            form.classList.add("was-validated");
-
-            // Enable/disable Next button
-            nextBtn.disabled = !isValid;
-        }
-
-        // Attach event listeners to inputs
-        form.querySelectorAll("input, textarea, select").forEach((input) => {
-            input.addEventListener("input", validateForm);
-            input.addEventListener("change", validateForm);
-        });
-
-        // Generate center number on form load
-        generateCenterNumber();
-
-        // Initial validation
+    // Auto-generate Center Number
+    function generateCenterNumber() {
+        const timestamp = Date.now().toString().slice(-6); // Last 6 digits of timestamp
+        const random = Math.floor(100 + Math.random() * 900); // 3-digit random number
+        centerNumber.value = `CTR-${timestamp}-${random}`;
         validateForm();
+    }
+
+    // Toggle Password Visibility
+    togglePassword.addEventListener("click", function () {
+        const type = password.getAttribute("type") === "password" ? "text" : "password";
+        password.setAttribute("type", type);
+        this.querySelector("i").classList.toggle("fa-eye");
+        this.querySelector("i").classList.toggle("fa-eye-slash");
     });
+
+    // Validate form and update button state
+    function validateForm() {
+        let isValid = form.checkValidity();
+
+        // Custom validation for closing time
+        if (openingTime.value && closingTime.value) {
+            if (closingTime.value <= openingTime.value) {
+                closingTime.setCustomValidity("Closing time must be after opening time.");
+                isValid = false;
+            } else {
+                closingTime.setCustomValidity("");
+            }
+        }
+
+        form.classList.add("was-validated");
+        nextBtn.disabled = !isValid;
+    }
+
+    // Attach validation listeners
+    form.querySelectorAll("input, textarea, select").forEach((input) => {
+        input.addEventListener("input", validateForm);
+        input.addEventListener("change", validateForm);
+    });
+
+    // Generate number on load
+    generateCenterNumber();
+    validateForm();
+});
 </script>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    const centerForm = document.getElementById("centerForm");
 
-              <!-- Batch Details Form -->
+    centerForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        let formData = new FormData(centerForm);
+
+        fetch(centerForm.action, {
+            method: "POST",
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === "success") {
+                // ✅ Hide center-details and show batch-details
+                document.getElementById("center-details").classList.remove("active");
+                document.getElementById("center-details").classList.add("d-none");
+
+                document.getElementById("batch-details").classList.remove("d-none");
+                document.getElementById("batch-details").classList.add("active");
+
+                // ✅ Update progress bar
+                document.querySelector(".progress-bar").style.width = "50%";
+            } else {
+                alert("Failed to save Center details");
+            }
+        })
+        .catch(err => console.error(err));
+    });
+});
+ </script>
+
+
+          <!-- Batch Details Form -->
 <div class="form-container form-section" id="batch-details">
     <h3 class="section-title"><i class="fas fa-layer-group me-2"></i>Batch Details</h3>
-    <form id="batchForm" novalidate>
+    <!-- <form id="batchForm" novalidate> -->
+        <form id="batchForm" action="<?php echo base_url('Center/save_batch'); ?>" method="post">
+
         <div class="row mb-3">
             <div class="col-md-6">
                 <label for="batchName" class="form-label required-field">Batch Name</label>
-                <input type="text" class="form-control" id="batchName" required>
+                <input type="text" class="form-control" id="batchName" name="batch_name" required>
                 <div class="invalid-feedback">Batch name is required.</div>
             </div>
             <div class="col-md-6">
                 <label for="batchLevel" class="form-label required-field">Level</label>
-                <select class="form-select" id="batchLevel" required>
+                <select class="form-select" id="batchLevel" name="batch_level"   required>
                     <option value="">Select Level</option>
                     <option value="beginner">Beginner</option>
                     <option value="intermediate">Intermediate</option>
@@ -390,42 +427,37 @@
         <div class="row mb-3">
             <div class="col-md-6">
                 <label for="batchStartTime" class="form-label required-field">Start Time</label>
-                <input type="time" class="form-control" id="batchStartTime" required>
+                <input type="time" class="form-control" id="batchStartTime" name="start_time"      required>
                 <div class="invalid-feedback">Start time is required.</div>
             </div>
             <div class="col-md-6">
                 <label for="batchEndTime" class="form-label required-field">End Time</label>
-                <input type="time" class="form-control" id="batchEndTime" required>
+                <input type="time" class="form-control" id="batchEndTime" name="end_time"     required>
                 <div class="invalid-feedback">End time must be after start time.</div>
             </div>
         </div>
         <div class="row mb-3">
             <div class="col-md-6">
                 <label for="startDate" class="form-label required-field">Start Date</label>
-                <input type="date" class="form-control" id="startDate" required>
+                <input type="date" class="form-control" id="startDate"    name="start_date"  required>
                 <div class="invalid-feedback">Start date is required.</div>
             </div>
             <div class="col-md-6">
                 <label for="endDate" class="form-label required-field">End Date</label>
-                <input type="date" class="form-control" id="endDate" required>
+                <input type="date" class="form-control" id="endDate" name="end_date"     required>
                 <div class="invalid-feedback">End date must be after start date.</div>
             </div>
         </div>
         <div class="row mb-3">
             <div class="col-md-6">
                 <label for="duration" class="form-label required-field">Duration (Months)</label>
-                <input type="number" class="form-control" id="duration" min="1" readonly required>
+                <input type="number" class="form-control" id="duration" min="1" name="duration"    required>
                 <div class="invalid-feedback">Duration must be at least 1 month.</div>
             </div>
             <div class="col-md-6">
                 <label for="category" class="form-label required-field">Category</label>
-                <select class="form-select" id="category" required>
-                    <option value="">Select Category</option>
-                    <option value="corporate">Corporate</option>
-                    <option value="individual">Individual</option>
-                    <option value="group">Group</option>
-                </select>
-                <div class="invalid-feedback">Please select a category.</div>
+                <input type="text" class="form-control" id="category" name="category"   placeholder="Enter category" required>
+                <div class="invalid-feedback">Category is required.</div>
             </div>
         </div>
         <div class="d-flex justify-content-between">
@@ -436,7 +468,7 @@
                 <button type="button" class="btn btn-info" id="addAnotherBatch">
                     <i class="fas fa-plus me-2"></i> Add Another Batch
                 </button>
-                <button type="button" class="btn btn-primary btn-next" data-next="staff-details">
+                <button type="submit" class="btn btn-primary btn-next" data-next="staff-details">
                     Next: Staff Details <i class="fas fa-arrow-right ms-2"></i>
                 </button>
             </div>
@@ -458,95 +490,131 @@
     </div>
 </div>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const form = document.getElementById("batchForm");
-        const nextBtn = form.querySelector(".btn-next");
-        const batchStartTime = document.getElementById("batchStartTime");
-        const batchEndTime = document.getElementById("batchEndTime");
-        const startDate = document.getElementById("startDate");
-        const endDate = document.getElementById("endDate");
-        const duration = document.getElementById("duration");
+<!-- <script>
+    $(document).ready(function () {
+    $("#batchForm").on("submit", function (e) {
+        e.preventDefault();
 
-        // Calculate duration based on start and end dates
-        function calculateDuration() {
-            if (startDate.value && endDate.value) {
-                const start = new Date(startDate.value);
-                const end = new Date(endDate.value);
-                if (end >= start) {
-                    let months = (end.getFullYear() - start.getFullYear()) * 12;
-                    months += end.getMonth() - start.getMonth();
-                    if (end.getDate() < start.getDate()) {
-                        months--;
-                    }
-                    duration.value = months >= 1 ? months : 1; // Ensure at least 1 month
-                    duration.setCustomValidity(""); // Clear any previous invalid state
-                } else {
-                    duration.value = "";
-                    duration.setCustomValidity("End date must be after start date.");
+        $.ajax({
+            url: $(this).attr("action"),
+            type: "POST",
+            data: $(this).serialize(),
+            success: function (response) {
+                // Handle success (flash message, next step)
+                alert("Batch saved successfully!");
+                // Move progress bar to next step
+                $("#batch-details").hide();
+                $("#staff-details").show();
+                $(".progressbar li").eq(2).addClass("active"); 
+            },
+            error: function () {
+                alert("Error saving batch!");
+            }
+        });
+    });
+});
+    </script> -->
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("batchForm");
+    const nextBtn = form.querySelector(".btn-next");
+    const prevBtn = form.querySelector(".btn-prev");
+    const batchStartTime = document.getElementById("batchStartTime");
+    const batchEndTime = document.getElementById("batchEndTime");
+    const startDate = document.getElementById("startDate");
+    const endDate = document.getElementById("endDate");
+    const duration = document.getElementById("duration");
+
+    // Calculate duration based on start and end dates
+    function calculateDuration() {
+        if (startDate.value && endDate.value) {
+            const start = new Date(startDate.value);
+            const end = new Date(endDate.value);
+            if (end >= start) {
+                let months = (end.getFullYear() - start.getFullYear()) * 12;
+                months += end.getMonth() - start.getMonth();
+                if (end.getDate() < start.getDate()) {
+                    months--;
                 }
+                duration.value = months >= 1 ? months : 1;
+                duration.setCustomValidity("");
             } else {
                 duration.value = "";
-                duration.setCustomValidity("Please select start and end dates.");
+                duration.setCustomValidity("End date must be after start date.");
             }
-            validateForm(); // Revalidate form after duration calculation
         }
+        validateForm();
+    }
 
-        // Validate form and update button state
-        function validateForm() {
-            let isValid = form.checkValidity();
+    // Validate form
+    function validateForm() {
+        let isValid = form.checkValidity();
 
-            // Custom validation for time
-            if (batchStartTime.value && batchEndTime.value) {
-                if (batchEndTime.value <= batchStartTime.value) {
-                    batchEndTime.setCustomValidity("End time must be after start time.");
-                    isValid = false;
-                } else {
-                    batchEndTime.setCustomValidity("");
-                }
-            }
-
-            // Custom validation for dates
-            if (startDate.value && endDate.value) {
-                const start = new Date(startDate.value);
-                const end = new Date(endDate.value);
-                if (end <= start) {
-                    endDate.setCustomValidity("End date must be after start date.");
-                    isValid = false;
-                } else {
-                    endDate.setCustomValidity("");
-                }
-            }
-
-            // Custom validation for duration
-            if (duration.value < 1) {
-                duration.setCustomValidity("Duration must be at least 1 month.");
+        if (batchStartTime.value && batchEndTime.value) {
+            if (batchEndTime.value <= batchStartTime.value) {
+                batchEndTime.setCustomValidity("End time must be after start time.");
                 isValid = false;
             } else {
-                duration.setCustomValidity("");
+                batchEndTime.setCustomValidity("");
             }
-
-            // Apply Bootstrap validation styles
-            form.classList.add("was-validated");
-
-            // Enable/disable Next button
-            nextBtn.disabled = !isValid;
         }
 
-        // Attach event listeners to inputs
-        form.querySelectorAll("input, select").forEach((input) => {
-            input.addEventListener("input", validateForm);
-            input.addEventListener("change", validateForm);
-        });
+        if (startDate.value && endDate.value) {
+            const start = new Date(startDate.value);
+            const end = new Date(endDate.value);
+            if (end <= start) {
+                endDate.setCustomValidity("End date must be after start date.");
+                isValid = false;
+            } else {
+                endDate.setCustomValidity("");
+            }
+        }
 
-        // Attach specific listeners for date fields to calculate duration
-        startDate.addEventListener("change", calculateDuration);
-        endDate.addEventListener("change", calculateDuration);
+        if (duration.value < 1) {
+            duration.setCustomValidity("Duration must be at least 1 month.");
+            isValid = false;
+        } else {
+            duration.setCustomValidity("");
+        }
 
-        // Initial validation
-        validateForm();
+        form.classList.add("was-validated");
+        nextBtn.disabled = !isValid;
+    }
+
+    // Switch between modules (sections)
+    function switchModule(currentId, nextId) {
+        document.getElementById(currentId).style.display = "none";
+        document.getElementById(nextId).style.display = "block";
+    }
+
+    // Event listeners
+    form.querySelectorAll("input, select").forEach((input) => {
+        input.addEventListener("input", validateForm);
+        input.addEventListener("change", validateForm);
     });
+
+    startDate.addEventListener("change", calculateDuration);
+    endDate.addEventListener("change", calculateDuration);
+
+    nextBtn.addEventListener("click", function () {
+        if (form.checkValidity()) {
+            const nextSectionId = this.getAttribute("data-next");
+            switchModule("batch-details", nextSectionId);
+        } else {
+            validateForm();
+        }
+    });
+
+    prevBtn.addEventListener("click", function () {
+        const prevSectionId = this.getAttribute("data-prev");
+        switchModule("batch-details", prevSectionId);
+    });
+
+    validateForm();
+});
 </script>
+
             <!-- Staff Details Form -->
             <div class="form-container form-section" id="staff-details">
                 <h3 class="section-title"><i class="fas fa-users me-2"></i>Staff Details</h3>
@@ -710,7 +778,7 @@
                     <!-- Add Facility Button -->
                     <div class="d-flex justify-content-end mt-4">
                         <button type="button" class="btn btn-info" id="addFacility">
-                            <i class="fas fa-plus me-2"></i> Add Facility
+                            <i class="fas fa-plus me-2"></i> submit
                         </button>
                     </div>
                 </form>
@@ -2121,6 +2189,9 @@
             startDate.addEventListener("change", calculateDuration);
             endDate.addEventListener("change", calculateDuration);
         </script>
+
+
+
 
 
 

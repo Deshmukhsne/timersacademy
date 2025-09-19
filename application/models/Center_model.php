@@ -260,12 +260,12 @@ class Center_model extends CI_Model
         return $this->db->get()->result();
     }
 
-    public function get_all_centers()
-    {
-        $this->db->select('id, name, center_number, address, rent_amount, rent_paid_date, center_timing_from, center_timing_to, created_at');
-        $query = $this->db->get('center_details');
-        return $query->result_array();
-    }
+    // public function get_all_centers()
+    // {
+    //     $this->db->select('id, name, center_number, address, rent_amount, rent_paid_date, center_timing_from, center_timing_to, created_at');
+    //     $query = $this->db->get('center_details');
+    //     return $query->result_array();
+    // }
 
     // Fetch center by ID (array)
     public function get_center_by_id($id)
@@ -393,4 +393,37 @@ class Center_model extends CI_Model
         $row = $this->db->select('center_id')->where('id', $admin_id)->get('admins')->row();
         return $row ? $row->center_id : null;
     }
+
+
+// Insert Center
+    public function insert_center($data) {
+        return $this->db->insert('center_details', $data);
+    }
+
+    // Get All Centers
+    public function get_all_centers() {
+        return $this->db->get('center_details')->result();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
