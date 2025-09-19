@@ -83,9 +83,9 @@
 
         .login__icon {
             font-size: 1.5rem;
-            background: var(--first-color);
+            /* background: whitesmoke; */
 
-            -webkit-text-fill-color: transparent;
+
             margin-right: 0.5rem;
         }
 

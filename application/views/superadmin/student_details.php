@@ -1615,7 +1615,7 @@
                                         Attendance Link
                                     </div>
                                     <div class="detail-value">
-                                        <a href="#" class="text-primary">https://academy.com/attendance/rahul-sharma-123</a>
+                                        <a href="#" class="text-primary"><?php  print_r($student["attendace_link"])  ?></a>
                                     </div>
                                 </div>
                             </div>
