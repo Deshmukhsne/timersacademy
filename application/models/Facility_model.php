@@ -86,6 +86,10 @@ class Facility_model extends CI_Model
     }
 
 
+    public function get_facilities_history_by_student($id){
+        return $this->db->get_where('student_facilities_history', ['student_id' => $id])->result_array();
+    }
+
 
 
 

@@ -326,11 +326,15 @@ class Superadmin extends CI_Controller
 		}
 
 		
-		// $data['student_get_current_batch'] = $this->Student_model->get_student_by_id_batch($id);
+		$data['student_get_current_batch'] = $this->Student_model->get_student_by_id_batch($id);
 
+	
 		$data['student_history'] = $this->Student_model->get_student_by_id_history($id);
 
 	
+
+		$data['student_history_batch'] = $this->Student_model->get_student_by_id_history_batch($id);
+		
 
 		$data['student_history_batch'] = $this->Student_model->get_student_by_id_history_batch($id);
 		
@@ -341,6 +345,18 @@ class Superadmin extends CI_Controller
 		$this->load->model('Facility_model');
 		$data['facilities'] = $this->Facility_model->get_facilities_by_student($id);
 
+
+		$data['facilities_history'] = $this->Facility_model->get_facilities_history_by_student($id);
+
+	
+
+		
+
+	
+	
+		$data['student_attendace'] = $this->Student_model->get_student_attendace($id);
+		
+		// print_r($data['student_attendace'] );
 
 
 		$this->load->view('superadmin/student_details', $data);

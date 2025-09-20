@@ -35,6 +35,49 @@ class Student_model extends CI_Model
         return $query->result_array();
     }
 
+    public function get_student_by_id_batch($id)
+    {
+
+        $this->db->select("
+        sah.id as admission_id,
+        sah.center_id,
+        sah.batch_id,
+     
+        sah.*,
+
+        c.id as center_id,
+        c.name as center_name,
+        c.center_number,
+        c.address,
+        c.rent_amount,
+        c.rent_paid_date,
+        c.center_timing_from,
+        c.center_timing_to,
+        c.password,
+        c.created_at as center_created_at,
+        c.updated_at as center_updated_at,
+        
+        b.id as batch_id,
+        b.batch_name,
+        b.batch_level,
+        b.start_time,
+        b.end_time,
+        b.start_date,
+        b.end_date,
+        b.duration,
+        b.category,
+        b.created_at as batch_created_at,
+        b.updated_at as batch_updated_at
+    ");
+        $this->db->from("students sah");
+        $this->db->join("center_details c", "c.id = sah.center_id", "left");
+        $this->db->join("batches b", "b.id = sah.batch_id", "left");
+        $this->db->where("sah.id", $id);
+
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
 
     public function get_student_by_id_history_batch($id)
     {
@@ -150,4 +193,27 @@ class Student_model extends CI_Model
 
         return (int) $this->db->count_all_results();
     }
+
+    public function get_student_attendace($student_id)
+    {
+        $this->db->select("
+        DATE_FORMAT(date, '%M %Y') as month_year, 
+        id, student_id, date, time, status, created_at
+    ");
+        $this->db->from("attendance");
+        $this->db->where("student_id", $student_id);
+        $this->db->order_by("date", "ASC");
+
+        $query = $this->db->get();
+        $result = $query->result_array();
+
+        // Group by month-year
+        $attendance_by_month = [];
+        foreach ($result as $row) {
+            $attendance_by_month[$row['month_year']][] = $row;
+        }
+
+        return $attendance_by_month;
+    }
+
 }

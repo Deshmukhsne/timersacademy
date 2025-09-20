@@ -927,7 +927,8 @@
                                                     Course Fees
                                                 </div>
                                                 <div class="detail-value">
-                                                    <?php print_r($student_addmission_data["course_fees"]) ?> </div>
+                                                    <?php print_r($student_addmission_data["course_fees"]) ?>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -937,7 +938,8 @@
                                                     Joining Date
                                                 </div>
                                                 <div class="detail-value">
-                                                    <?php print_r($student_addmission_data["joining_date"]) ?> </div>
+                                                    <?php print_r($student_addmission_data["joining_date"]) ?>
+                                                </div>
                                             </div>
                                             <div class="detail-row">
                                                 <div class="detail-label">
@@ -1063,7 +1065,9 @@
                                             <i class="fas fa-university"></i>
                                             Center
                                         </div>
-                                        <div class="detail-value">Mumbai Central Branch</div>
+                                        <div class="detail-value">
+                                            <?php print_r($student_get_current_batch[0]["center_name"]) ?>
+                                        </div>
                                     </div>
 
                                     <div class="detail-row">
@@ -1071,7 +1075,9 @@
                                             <i class="fas fa-users"></i>
                                             Batch
                                         </div>
-                                        <div class="detail-value">Morning Batch - Group A</div>
+                                        <div class="detail-value">
+                                            <?php print_r($student_get_current_batch[0]["batch_name"]) ?>
+                                        </div>
                                     </div>
 
                                     <div class="detail-row">
@@ -1079,7 +1085,10 @@
                                             <i class="fas fa-clock"></i>
                                             Batch Time
                                         </div>
-                                        <div class="detail-value">6:00 AM - 7:30 AM</div>
+                                        <div class="detail-value">
+                                            <?php print_r($student_get_current_batch[0]["start_time"]) ?> -
+                                            <?php print_r($student_get_current_batch[0]["end_time"]) ?>
+                                        </div>
                                     </div>
 
                                     <div class="detail-row">
@@ -1097,7 +1106,9 @@
                                             <i class="fas fa-chalkboard-teacher"></i>
                                             Coach
                                         </div>
-                                        <div class="detail-value">Mr. Vikram Singh</div>
+                                        <div class="detail-value">
+                                            <?php print_r($student_get_current_batch[0]["coach"]) ?>
+                                        </div>
                                     </div>
 
                                     <div class="detail-row">
@@ -1105,7 +1116,9 @@
                                             <i class="fas fa-user-tie"></i>
                                             Coordinator
                                         </div>
-                                        <div class="detail-value">Mrs. Sunita Patel</div>
+                                        <div class="detail-value">
+                                            <?php print_r($student_get_current_batch[0]["coordinator"]) ?>
+                                        </div>
                                     </div>
 
                                     <div class="detail-row">
@@ -1113,7 +1126,9 @@
                                             <i class="fas fa-phone"></i>
                                             Coordinator Phone
                                         </div>
-                                        <div class="detail-value">+91 98765 43212</div>
+                                        <div class="detail-value">
+                                            <?php print_r($student_get_current_batch[0]["coordinator_phone"]) ?>
+                                        </div>
                                     </div>
 
                                     <div class="detail-row">
@@ -1148,7 +1163,8 @@
                                                     Center
                                                 </div>
                                                 <div class="detail-value">
-                                                    <?php print_r($student_addmission_batch_data["center_name"]) ?></div>
+                                                    <?php print_r($student_addmission_batch_data["center_name"]) ?>
+                                                </div>
                                             </div>
                                             <div class="detail-row">
                                                 <div class="detail-label">
@@ -1156,7 +1172,8 @@
                                                     Batch
                                                 </div>
                                                 <div class="detail-value">
-                                                    <?php print_r($student_addmission_batch_data["batch_name"]) ?></div>
+                                                    <?php print_r($student_addmission_batch_data["batch_name"]) ?>
+                                                </div>
                                             </div>
                                             <div class="detail-row">
                                                 <div class="detail-label">
@@ -1165,7 +1182,8 @@
                                                 </div>
                                                 <div class="detail-value">
                                                     <?php print_r($student_addmission_batch_data["start_time"]) ?> -
-                                                    <?php print_r($student_addmission_batch_data["end_time"]) ?></div>
+                                                    <?php print_r($student_addmission_batch_data["end_time"]) ?>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -1175,7 +1193,8 @@
                                                     Coach
                                                 </div>
                                                 <div class="detail-value">
-                                                    <?php print_r($student_addmission_batch_data["coach"]) ?></div>
+                                                    <?php print_r($student_addmission_batch_data["coach"]) ?>
+                                                </div>
                                             </div>
                                             <div class="detail-row">
                                                 <div class="detail-label">
@@ -1441,88 +1460,36 @@
                                 <i class="fas fa-history me-2"></i>Previous Facilities
                             </h5>
 
-                            <div class="facility-history-item">
-                                <div class="facility-history-header">
-                                    <span class="facility-period">July 2023 - December 2023</span>
-                                </div>
-                                <div class="row">
+                            <div class="row">
+                                <?php foreach ($facilities_history as $index => $facilities_history_data): ?>
                                     <div class="col-md-6">
                                         <div class="facility-card">
                                             <div class="facility-header">
                                                 <div class="facility-name">
-                                                    <i class="fas fa-lock me-2"></i>Locker Facility
+                                                    <i
+                                                        class="fas fa-lock me-2"></i><?php echo $facilities_history_data["facility_name"]; ?>
                                                 </div>
-                                                <div class="facility-amount">₹400</div>
+                                                <div class="facility-amount">
+                                                    ₹<?php echo $facilities_history_data["amount"]; ?></div>
                                             </div>
                                             <div class="facility-details">
-                                                <strong>Details:</strong> Small locker (Locker No: B-12)<br>
-                                                <strong>Duration:</strong> 6 months<br>
-                                                <strong>Status:</strong> <span
-                                                    class="status-badge status-deactive">Expired</span>
+                                                <strong>Details:</strong> <?php echo $facilities_history_data["details"]; ?>
+                                                <br>
+                                                <!-- <strong>Duration:</strong> 6 months<br> -->
+                                                <strong>Status:</strong>
+                                                <span class="status-badge status-deactive">Expired</span>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div class="col-md-6">
-                                        <div class="facility-card">
-                                            <div class="facility-header">
-                                                <div class="facility-name">
-                                                    <i class="fas fa-tshirt me-2"></i>Sports Kit
-                                                </div>
-                                                <div class="facility-amount">₹800</div>
-                                            </div>
-                                            <div class="facility-details">
-                                                <strong>Details:</strong> Complete sports kit<br>
-                                                <strong>Duration:</strong> 6 months<br>
-                                                <strong>Status:</strong> <span
-                                                    class="status-badge status-deactive">Expired</span>
-                                            </div>
-                                        </div>
+                                    <?php if (($index + 1) % 2 == 0): ?>
                                     </div>
-                                </div>
-                            </div>
-
-                            <div class="facility-history-item">
-                                <div class="facility-history-header">
-                                    <span class="facility-period">January 2023 - June 2023</span>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="facility-card">
-                                            <div class="facility-header">
-                                                <div class="facility-name">
-                                                    <i class="fas fa-table-tennis me-2"></i>Racket Rental
-                                                </div>
-                                                <div class="facility-amount">₹250</div>
-                                            </div>
-                                            <div class="facility-details">
-                                                <strong>Details:</strong> Basic racket<br>
-                                                <strong>Duration:</strong> 6 months<br>
-                                                <strong>Status:</strong> <span
-                                                    class="status-badge status-deactive">Expired</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="facility-card">
-                                            <div class="facility-header">
-                                                <div class="facility-name">
-                                                    <i class="fas fa-shoe-prints me-2"></i>Shoe Rental
-                                                </div>
-                                                <div class="facility-amount">₹200</div>
-                                            </div>
-                                            <div class="facility-details">
-                                                <strong>Details:</strong> Sports shoes<br>
-                                                <strong>Duration:</strong> 3 months<br>
-                                                <strong>Status:</strong> <span
-                                                    class="status-badge status-deactive">Expired</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                    <div class="row"> <!-- close and start new row after 2 cards -->
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
                             </div>
                         </div>
+
 
                         <!-- Navigation Buttons -->
                         <div class="nav-buttons">
@@ -1574,7 +1541,7 @@
                         </div>
 
                         <!-- Attendance Table -->
-                        <div class="attendance-table">
+                        <!-- <div class="attendance-table">
                             <table class="table">
                                 <thead>
                                     <tr>
@@ -1637,7 +1604,49 @@
                                     </tr>
                                 </tbody>
                             </table>
+                        </div> -->
+
+                        <div class="attendance-table">
+                            <?php if (!empty($student_attendace)): ?>
+                                <?php foreach ($student_attendace as $month => $records): ?>
+                                    <h5 class="mt-4 mb-3" style="color:#d9534f;"><?php echo $month; ?></h5>
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Day</th>
+                                                <th>Time</th>
+                                                <th>Status</th>
+                                                <th>Coach</th>
+                                                <th>Remarks</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($records as $row): ?>
+                                                <tr>
+                                                    <td><?php echo date("d F Y", strtotime($row['date'])); ?></td>
+                                                    <td><?php echo date("l", strtotime($row['date'])); ?></td>
+                                                    <td><?php echo $row['time']; ?></td>
+                                                    <td>
+                                                        <?php
+                                                        $statusClass = strtolower($row['status']);
+                                                        ?>
+                                                        <span class="attendance-status status-<?php echo $statusClass; ?>">
+                                                            <?php echo $row['status']; ?>
+                                                        </span>
+                                                    </td>
+                                                    <td>Mr. Vikram Singh</td>
+                                                    <td>Regular attendance</td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <p>No attendance records found.</p>
+                            <?php endif; ?>
                         </div>
+
 
                         <!-- Attendance Link -->
                         <div class="row mt-4">

@@ -174,6 +174,8 @@ class Facility extends CI_Controller {
         }
     }
 
+
+
     // UPDATE facility by ID
     public function updateFacilityById($id) {
         $rawInput = file_get_contents("php://input");
@@ -224,6 +226,24 @@ class Facility extends CI_Controller {
             echo json_encode(['status' => 'success', 'data' => $staff]);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Staff not found']);
+        }
+    }
+
+
+    public function get_facilities_history_by_student($id){
+
+          $facility = $this->Facility_model->getFacilityHistoryById($id);
+
+        if ($facility) {
+            echo json_encode([
+                "status" => "success",
+                "data" => $facility
+            ]);
+        } else {
+            echo json_encode([
+                "status" => "error",
+                "message" => "Facility not found"
+            ]);
         }
     }
 }
