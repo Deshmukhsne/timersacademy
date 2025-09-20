@@ -281,6 +281,19 @@ class Superadmin extends CI_Controller
 			$this->session->set_flashdata('error', 'Student not found.');
 			redirect('superadmin/students');
 		}
+
+		
+		// $data['student_get_current_batch'] = $this->Student_model->get_student_by_id_batch($id);
+
+		$data['student_history'] = $this->Student_model->get_student_by_id_history($id);
+
+	
+
+		$data['student_history_batch'] = $this->Student_model->get_student_by_id_history_batch($id);
+		
+
+		
+
 		// Load facilities
 		$this->load->model('Facility_model');
 		$data['facilities'] = $this->Facility_model->get_facilities_by_student($id);
