@@ -84,4 +84,10 @@ class Facility_model extends CI_Model
         $query = $this->db->get('facilities');
         return $query->result_array();
     }
+
+
+
+
+
+
 }

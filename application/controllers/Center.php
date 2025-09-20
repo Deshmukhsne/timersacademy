@@ -5,33 +5,34 @@ class Center extends CI_Controller {
     public function __construct() {
         parent::__construct();
         $this->load->model('Center_model');
+         $this->load->model('Batch_model');
     }
 
     public function index() {
         $this->load->view('center_management');
     }
 
-    public function save() {
-        $this->output->set_content_type('application/json');
-        log_message('debug', 'Save method called with data: ' . json_encode($this->input->raw_input_stream));
-        $data = json_decode($this->input->raw_input_stream, true);
+    // public function save() {
+    //     $this->output->set_content_type('application/json');
+    //     log_message('debug', 'Save method called with data: ' . json_encode($this->input->raw_input_stream));
+    //     $data = json_decode($this->input->raw_input_stream, true);
 
-        if (!$data) {
-            $this->output->set_status_header(400);
-            echo json_encode(['message' => 'Invalid input data']);
-            return;
-        }
+    //     if (!$data) {
+    //         $this->output->set_status_header(400);
+    //         echo json_encode(['message' => 'Invalid input data']);
+    //         return;
+    //     }
 
-        $result = $this->Center_model->save_center($data);
-        if ($result) {
-            log_message('debug', 'Center saved successfully');
-            echo json_encode(['message' => 'Center added successfully']);
-        } else {
-            $this->output->set_status_header(500);
-            log_message('error', 'Failed to save center');
-            echo json_encode(['message' => 'Failed to add center']);
-        }
-    }
+    //     $result = $this->Center_model->save_center($data);
+    //     if ($result) {
+    //         log_message('debug', 'Center saved successfully');
+    //         echo json_encode(['message' => 'Center added successfully']);
+    //     } else {
+    //         $this->output->set_status_header(500);
+    //         log_message('error', 'Failed to save center');
+    //         echo json_encode(['message' => 'Failed to add center']);
+    //     }
+    // }
 
     public function get_all() {
         $this->output->set_content_type('application/json');
@@ -667,27 +668,27 @@ public function updateFacilityById($id) {
 //         ->set_output(json_encode($response));
 // }
 
-//Batch data save in table
-     public function save_batch() {
-        $batch_timings = $this->input->post('batch_timing');
-        $start_dates   = $this->input->post('start_date');
-        $categories    = $this->input->post('batch_category');
+// //Batch data save in table
+//      public function save_batch() {
+//         $batch_timings = $this->input->post('batch_timing');
+//         $start_dates   = $this->input->post('start_date');
+//         $categories    = $this->input->post('batch_category');
 
-        if (!empty($batch_timings)) {
-            foreach ($batch_timings as $index => $timing) {
-                $data = [
-                    'batch_timing'   => $timing,
-                    'start_date'     => $start_dates[$index],
-                    'batch_category' => $categories[$index]
-                ];
-                $this->Batch_model->add_batch($data);
-            }
+//         if (!empty($batch_timings)) {
+//             foreach ($batch_timings as $index => $timing) {
+//                 $data = [
+//                     'batch_timing'   => $timing,
+//                     'start_date'     => $start_dates[$index],
+//                     'batch_category' => $categories[$index]
+//                 ];
+//                 $this->Batch_model->add_batch($data);
+//             }
             
-        // Redirect or send success response
-        $this->session->set_flashdata('success', 'Batches saved successfully!');
-        redirect('CenterManagement');  
-    }
-        }
+//         // Redirect or send success response
+//         $this->session->set_flashdata('success', 'Batches saved successfully!');
+//         redirect('CenterManagement');  
+//     }
+//         }
 //delete batch
 public function deleteBatch($id)
 {
@@ -731,7 +732,76 @@ public function add_batch() {
     }
 }
    
- }
+
+// Save Center Details data
+public function save_center() {
+    if ($this->input->post()) {
+        $data = [
+            'name'               => $this->input->post('name'),
+            'center_number'      => $this->input->post('center_number'),
+            'address'            => $this->input->post('address'),
+            'rent_amount'        => $this->input->post('rent_amount'),
+            'rent_paid_date'     => $this->input->post('rent_paid_date'),
+            'center_timing_from' => $this->input->post('center_timing_from'),
+            'center_timing_to'   => $this->input->post('center_timing_to'),
+            'password'           => password_hash($this->input->post('password'), PASSWORD_BCRYPT)
+        ];
+
+        if ($this->Center_model->insert_center($data)) {
+            echo json_encode(['status' => 'success']);
+        } else {
+            echo json_encode(['status' => 'error']);
+        }
+    }
+}
+
+///
+
+    // Show all batches
+    public function list_batches() {
+        $data['batches'] = $this->Batch_model->get_batches();
+        $this->load->view('add_new_center/', $data);
+    }
+
+
+    // Save Batch
+    public function save_batch() {
+        if ($this->input->post()) {
+
+            $data = [
+                'center_id'   => $this->input->post('center_id'),   // hidden field
+                'batch_name'  => $this->input->post('batch_name'),
+                'batch_level' => $this->input->post('batch_level'),
+                'start_time'  => $this->input->post('start_time'),
+                'end_time'    => $this->input->post('end_time'),
+                'start_date'  => $this->input->post('start_date'),
+                'end_date'    => $this->input->post('end_date'),
+                'duration'    => $this->input->post('duration'),
+                'category'    => $this->input->post('category'),
+                'created_at'  => date('Y-m-d H:i:s')
+            ];
+
+            $insert_id = $this->Batch_model->insert_batch($data);
+
+            if ($insert_id) {
+                echo json_encode(['status' => 'success', 'id' => $insert_id]);
+            } else {
+                echo json_encode(['status' => 'error']);
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+ 
 
 
 
