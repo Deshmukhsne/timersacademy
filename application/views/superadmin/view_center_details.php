@@ -393,7 +393,7 @@
     </div>
   </div>
 
-  <!-- Edit Center Modal -->
+  Edit Center Modal
   <div class="modal fade" id="editCenterModal" tabindex="-1" role="dialog" aria-labelledby="editCenterModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
