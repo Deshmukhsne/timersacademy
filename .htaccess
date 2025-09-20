@@ -1,6 +1,6 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /timersacademy/
+    RewriteBase /timersacademy-1/
 
     # If file or directory exists, skip
     RewriteCond %{REQUEST_FILENAME} !-f

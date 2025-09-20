@@ -23,9 +23,9 @@ defined('BASEPATH') or exit('No direct script access allowed');
 | a PHP script and you can easily do that on your own.
 |
 */
-$config['base_url'] = 'http://localhost/timersacademy/';
+$config['base_url'] = 'http://localhost/timersacademy-1/';
 $config['index_page'] = '';
-$config['uri_protocol']	= 'REQUEST_URI';   // make sure it's REQUEST_URI
+$config['uri_protocol']    = 'REQUEST_URI';   // make sure it's REQUEST_URI
 
 
 /*
@@ -509,7 +509,7 @@ $config['proxy_ips'] = '';
 // Database configuration
 $config['db_hostname'] = 'localhost';
 $config['db_username'] = 'your_username';
-$config['db_password'] = 'your_password'; 
+$config['db_password'] = 'your_password';
 $config['db_database'] = 'timeers_badminton';
 
 // Twilio configuration (example)
